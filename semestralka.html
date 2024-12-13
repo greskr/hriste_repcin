@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hřiště Řepčín</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://sigmafotbal.cz/assets/apple-touch-icon.png">
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/esri-leaflet"></script>
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            margin: 0;
+            font-family: Poppins, sans-serif;
+            color: #00589a;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background-color: #00589a;
+            padding: 10px 0;
+        }
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            padding: 14px 20px;
+            font-size: 18px;
+        }
+        .navbar a:hover {
+            background-color: #00589a;
+            border-radius: 5px;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            margin: 10px;
+        }
+        .logo img {
+            height: 50px;
+            margin-right: 10px;
+        }
+        h2 {
+            margin: 0;
+           
+        }
+        h3{
+            color:white;
+            background-color: #00589a;
+            padding: 10px;
+            font-size: 25px;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            background-color: white;
+            color: black;
+            box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+        .dropdown-menu a {
+            font-size: 12px;
+            color: #00589a;
+            padding: 6px 8px;
+            display: block;
+            text-decoration: none;
+        }
+        .dropdown-menu a:hover {
+            background-color: #ddd;
+        }
+        .dropdown:hover .dropdown-menu {
+            display: block;}
+        #map {
+            height: 800px;
+            z-index: 0;
+        }
+        #onas{
+            padding: 10px;
+            text-align: left;
+        }
+        /* Zoom tlačítka */
+        .leaflet-control-zoom-in,
+        .leaflet-control-zoom-out {
+            background-color: #00589a !important;
+            color: white !important;
+            border:#00589a !important;
+        }
+
+        .leaflet-control-zoom-in:hover,
+        .leaflet-control-zoom-out:hover {
+            background-color: #00589a !important;
+        }
+
+        /* Text v menu vrstev */
+        .leaflet-control-layers label {
+            background-color: #00589a !important;
+            color: white !important;
+            }
+
+        .leaflet-control-layers label:hover {
+            color: #00589a;
+        }
+
+        .leaflet-control-layers-list {
+            background-color: #00589a !important;
+            font-family: Poppins, sans-serif !important;
+        }
+
+        .leaflet-control-layers-expanded {
+            background:  #00589a !important;
+        }
+        
+    </style>
+</head>
+<body>
+
+<div class="logo">
+    <a href="https://sigmafotbal.cz" target="_blank"><img src="https://sigmafotbal.cz/assets/apple-touch-icon.png" alt="Sigma Logo"></a>
+    <h2>Hřiště Řepčín</h2>
+</div>
+
+<div class="navbar">
+    <a href="#onas">O NÁS</a>
+    <a href="https://sigmafotbal.cz/photogallery?type=2&month=&year=" target="_blank">FOTOGALERIE</a>
+    <div class="dropdown">
+        <a class="dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">KATEGORIE</a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <a class="dropdown-item"  href="https://sigmafotbal.cz/roster/MUZ">A-tým</a>
+                <a class="dropdown-item"  href="https://sigmafotbal.cz/roster/MUB">B-tým</a>
+                <a class="dropdown-item"  href="https://sigmafotbal.cz/roster-table/ZEN">Ženy</a>
+                <a class="dropdown-item"  href="https://sigmafotbal.cz/roster-table/ZEB">Ženy B-tým</a>
+                <a class="dropdown-item"  href="https://sigmafotbal.cz/roster-table/U19">U19</a>
+                <a class="dropdown-item"  href="https://sigmafotbal.cz/roster-table/U18">U18</a>
+                <a class="dropdown-item"  href="https://sigmafotbal.cz/roster-table/U17">U17</a>
+                <a class="dropdown-item"  href="https://sigmafotbal.cz/roster-table/U16">U16</a>
+                <a class="dropdown-item"  href="https://sigmafotbal.cz/roster-table/WU18">Dorostenky WU18</a>
+                <a class="dropdown-item"  href="https://sigmafotbal.cz/roster-table/U15">U15</a>
+                <a class="dropdown-item"  href="https://sigmafotbal.cz/roster-table/U14">U14</a>
+                <a class="dropdown-item"  href="https://sigmafotbal.cz/roster-table/WU16">St. žákyně WU15</a>
+                <a class="dropdown-item"  href="https://sigmafotbal.cz/roster-table/U13">U13</a>
+                <a class="dropdown-item"  href="https://sigmafotbal.cz/roster-table/U12">U12</a>
+                <a class="dropdown-item"  href="https://sigmafotbal.cz/roster-table/WU13">Ml. žákyně WU13</a>
+                <a class="dropdown-item"  href="https://sigmafotbal.cz/roster-table/U11">U11</a>
+                <a class="dropdown-item"  href="https://sigmafotbal.cz/roster-table/U10">U10</a>
+                <a class="dropdown-item"  href="https://sigmafotbal.cz/roster-table/U9">U9</a>
+                <a class="dropdown-item"  href="https://sigmafotbal.cz/roster-table/U8">U8</a>
+                <a class="dropdown-item"  href="https://sigmafotbal.cz/roster-table/U7">U7</a>
+                <a class="dropdown-item"  href="https://sigmafotbal.cz/roster-table/WU11">Přípravky dívky WU11</a>
+               
+        </div>
+    </div>
+    <a href="https://docs.google.com/spreadsheets/d/1m2aSXy3x3v0ZGGYIomZX3njSez1Au37jJTzcu_bYoU4/edit?gid=0#gid=0" target="_blank">ROZPIS TRÉNINKŮ</a>
+</div>
+
+<div id="map"></div>
+
+<script>
+     const bounds = [
+        [49.6014792, 17.2192075], // Southwest coordinates
+        [49.6068650, 17.2411158] // Northeast coordinates
+    ];
+
+    // Inicializace mapy
+    var map = L.map('map', {
+        center: [49.6041186, 17.2297842],
+        zoom: 18,
+        maxZoom: 19,
+        minZoom: 16,
+        maxBounds: bounds
+    });
+
+
+
+    // Podkladové mapy
+        var osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19
+    }); // Už není výchozí vrstva
+
+    var cartoPositronLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
+        subdomains: 'abcd',
+        maxZoom: 19
+    }).addTo(map); // Výchozí vrstva
+
+
+    var esriTopoLayer = L.esri.basemapLayer('Topographic');
+    var esriImageryLayer = L.esri.basemapLayer('Imagery');
+    
+
+    // Vlastní vrstva
+    var customLayer = L.tileLayer('https://gis.upol.cz/gres/{z}/{x}/{y}.png', {
+        attribution: '&copy; Vaše Dlaždice',
+        maxZoom: 19
+    }).addTo(map);
+
+    // GeoJSON data
+    var geojsonData = {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "id": 1,
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [17.2297278, 49.6051836]
+                },
+                "properties": {
+                    "nazev": "Vchod na tribunu",
+                    "iconUrl": "ikony/VstupTribuna.svg"
+                }
+            },
+            {
+                "type": "Feature",
+                "id": 2,
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [17.2299653, 49.6050669]
+                },
+                "properties": {
+                    "nazev": "Vchod na tribunu",
+                    "iconUrl": "ikony/VstupTribuna.svg"
+                }
+            },
+            {
+                "type": "Feature",
+                "id": 3,
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [17.2294583, 49.6049106]
+                },
+                "properties": {
+                    "nazev": "Vchod na tribunu",
+                    "iconUrl": "ikony/VstupTribuna.svg"
+                }
+            },
+            {
+                "type": "Feature",
+                "id": 4,
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [17.2296714, 49.6047881]
+                },
+                "properties": {
+                    "nazev": "Střídačka hosté",
+                    "iconUrl": "ikony/StridackaHoste.svg"
+                }
+            },
+            {
+                "type": "Feature",
+                "id": 5,
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [17.2295722, 49.6038739]
+                },
+                "properties": {
+                    "nazev": "Střídačka hosté",
+                    "iconUrl": "ikony/StridackaHoste.svg"
+                }
+            },
+            {
+                "type": "Feature",
+                "id": 6,
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [17.2295294, 49.6046533]
+                },
+                "properties": {
+                    "nazev": "Střídačka domácí",
+                    "iconUrl": "ikony/StridackaDomaci.svg"
+                }
+            },
+            {
+                "type": "Feature",
+                "id": 7,
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [17.2293711, 49.6039711]
+                },
+                "properties": {
+                    "nazev": "Střídačka domácí",
+                    "iconUrl": "ikony/StridackaDomaci.svg"
+                }
+            },
+            {
+                "type": "Feature",
+                "id": 8,
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [17.2298761, 49.6038661]
+                },
+                "properties": {
+                    "nazev": "Toalety",
+                    "iconUrl": "ikony/WC.svg"
+                }
+            },
+            {
+                "type": "Feature",
+                "id": 9,
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [17.2297211, 49.6051347]
+                },
+                "properties": {
+                    "nazev": "Toalety",
+                    "iconUrl": "ikony/WC.svg"
+                }
+            },
+            {
+                "type": "Feature",
+                "id": 10,
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [17.2296381, 49.6050583]
+                },
+                "properties": {
+                    "nazev": "Bufet",
+                    "iconUrl": "ikony/Bufet.svg"
+                }
+            },
+            {
+                "type": "Feature",
+                "id": 11,
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [17.2297386, 49.6049889]
+                },
+                "properties": {
+                    "nazev": "Tribuna pro diváky - umělka",
+                    "iconUrl": "ikony/Tribuna.svg"
+                }
+            },
+            {
+                "type": "Feature",
+                "id": 12,
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [17.2288803, 49.603355]
+                },
+                "properties": {
+                    "nazev": "Tribuna pro diváky - horní hřiště",
+                    "iconUrl": "ikony/Tribuna.svg"
+
+                }
+            },
+
+        ]
+    };
+
+    // Přidání GeoJSON dat na mapu
+    var geojsonLayer = L.geoJSON(geojsonData, {
+        pointToLayer: function (feature, latlng) {
+            // Vytvoření vlastní ikony pro každý bod
+            const customIcon = L.icon({
+                iconUrl: feature.properties.iconUrl,
+                iconSize: [25, 25],
+                iconAnchor: [16, 32],
+                popupAnchor: [0, -32]
+            });
+
+            // Vytvoření markeru s ikonou a přidání popupu
+            return L.marker(latlng, { icon: customIcon }).bindPopup(`<b>${feature.properties.nazev}</b>`);
+        }
+    }).addTo(map);
+
+    // Skupiny vrstev
+    var basemaps = {
+        "CartoDB Positron": cartoPositronLayer,
+        "OpenStreetMap": osmLayer,
+        "Esri Topographic": esriTopoLayer,
+        "Esri Imagery": esriImageryLayer
+    };
+
+    var overlayMaps = {
+        "Ortofoto": customLayer,
+        "Body zájmu": geojsonLayer
+    };
+
+    L.control.layers(basemaps, overlayMaps, {
+    collapsed: false 
+    }).addTo(map);
+</script>
+
+<h3>O NÁS</h3>  
+
+<div id="onas">  
+<p>Vítejte na stránce, která je věnována všem fanouškům fotbalu, rodičům mladých sportovců a těm, kteří zvažují zápis svého dítěte do mládežnické přípravky klubu Sigma Olomouc. Naším cílem je přiblížit svět dětského fotbalu v Olomouci a nabídnout užitečné informace i inspiraci těm, kteří chtějí podpořit rozvoj mladých talentů.</p>
+<h4>Kde to všechno začíná?</h4>
+<p>Domovem mládežnické přípravky Sigmy Olomouc je fotbalové hřiště na Řepčíně. Jedná se o moderní sportovní areál, snadno dostupný jak městskou hromadnou dopravou (zastávka Svatoplukova), tak autem – přímo u areálu najdete volně přístupné parkoviště. </p>
+<h4>Prozkoumejte areál </h4>
+<p>Součástí stránky je podrobná mapa sportovního areálu. Ta vám ukáže nejen, jak areál vypadá z ptačí perspektivy, ale také kde najdete důležitá místa, jako jsou toalety, vstupy na tribunu, bufet nebo střídačky. </p>
+<h4>Fotbal v obrazech a přehled tréninků</h4>
+<p>Na stránce najdete také fotogalerii, která zachycuje mládež v akci – od radostných momentů na hřišti až po týmového ducha, který dělá dětský fotbal jedinečným. Kromě toho nabízíme tabulkový rozpis tréninků, díky kterému si můžete snadno naplánovat svůj čas a nezmeškáte žádnou důležitou událost.</p>
+<h4>Přijďte se podívat!</h4>
+<p>Ať už jste hrdí rodiče, vášniví fanoušci, nebo hledáte ideální místo, kde vaše dítě může rozvíjet svůj talent, stránka "Kde hraje naše mládež" je tu pro vás. Přijďte nasát atmosféru dětského fotbalu, podpořit mladé hráče a užít si skvělé chvíle plné energie a nadšení!</p>
+</div>
+
+</body>
+</html>
